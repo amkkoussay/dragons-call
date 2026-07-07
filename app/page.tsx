@@ -10,6 +10,12 @@ import { useGyroPermission } from '@/hooks/useGyroPermission';
 
 gsap.registerPlugin(ScrollTrigger);
 
+declare global {
+  interface Window {
+    scrollProgress: { value: number };
+  }
+}
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
@@ -22,13 +28,15 @@ export default function Home() {
   // from a basePath misconfiguration), surface a visible error instead
   // of an infinite silent "LOADING…" screen.
   useEffect(() => {
-    const t = setTimeout(() => setTimedOut(true), 15000);
+    const t = setTimeout(() => {
+      console.log("Home: Loading timeout reached.");
+      setTimedOut(true);
+    }, 10000);
     return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
     window.scrollProgress = { value: 0 };
-
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -51,6 +59,7 @@ export default function Home() {
 
   useEffect(() => {
     if (ready && canvasWrapperRef.current) {
+      console.log("Home: Scene is ready, revealing canvas.");
       gsap.to(canvasWrapperRef.current, { opacity: 1, duration: 1.2, ease: 'power2.out' });
     }
   }, [ready]);
@@ -82,9 +91,7 @@ export default function Home() {
           </Suspense>
         </Canvas>
       </div>
-
       <NoiseOverlay />
-
       {!ready && (
         <div
           style={{
@@ -99,14 +106,18 @@ export default function Home() {
             fontFamily: 'system-ui, sans-serif',
             fontSize: 14,
             letterSpacing: '0.1em',
+            cursor: timedOut ? 'pointer' : 'default'
           }}
+          onClick={() => { if (timedOut) setReady(true); }}
         >
           {timedOut ? (
             <div style={{ textAlign: 'center', padding: '0 24px' }}>
               <p>Taking longer than expected.</p>
               <p style={{ opacity: 0.6, marginTop: 8 }}>
-                Check the browser console for 404s on /images/* or _next/*
-                (basePath / .nojekyll misconfiguration).
+                Click here to try revealing the scene anyway.
+              </p>
+              <p style={{ fontSize: 10, opacity: 0.4, marginTop: 16 }}>
+                Check console for basePath errors.
               </p>
             </div>
           ) : (
