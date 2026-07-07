@@ -60,7 +60,7 @@ export default function Home() {
   useEffect(() => {
     if (ready && canvasWrapperRef.current) {
       console.log("Home: Scene is ready, revealing canvas.");
-      gsap.to(canvasWrapperRef.current, { opacity: 1, duration: 1.2, ease: 'power2.out' });
+      gsap.to(canvasWrapperRef.current, { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out' });
     }
   }, [ready]);
 
@@ -75,7 +75,7 @@ export default function Home() {
           width: '100vw',
           height: '100vh',
           zIndex: 1,
-          opacity: 0,
+          opacity: 1,
         }}
       >
         <Canvas
